@@ -68,13 +68,14 @@ void DSAIListener::Run()
             } while (bytesReceived > 0);
 
             close(clientSock);
+            std::cout << "Client #" << clientSock << " Disconnected!\n";
         }
     }
 }
 
 void DSAIListener::Cleanup()
 {
-
+    std::cout << "Closing Down Server!";
 }
 
 // Create a socket
@@ -124,12 +125,15 @@ SOCKET DSAIListener::WaitForConnection(SOCKET listeningSock)
 
     if (getnameinfo((sockaddr*)&clientInfo, clientSize, host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
     {
-        std::cout << host << " connected on port " << service << std::endl;
+        std::cout << "Client #" << clientSock << ": "
+                  << host << " connected on port " << service << std::endl;
     }
     else
     {
         inet_ntop(AF_INET, &clientInfo.sin_addr, host, NI_MAXHOST);
-        std::cout << host << " connected on port " << ntohs(clientInfo.sin_port) << std::endl;
+        std::cout << "Client #" << clientSock << ": " << host
+                  << " connected on port " << ntohs(clientInfo.sin_port)
+                  << std::endl;
     }
 
     return clientSock;
