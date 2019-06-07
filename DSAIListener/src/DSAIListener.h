@@ -1,7 +1,15 @@
 #ifndef DSAILISTENER_H
 #define DSAILISTENER_H
+#include <iostream>
 #include <string>
+#include <string.h>
 #include <functional>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+
 
 using SOCKET = int;
 #define MAX_BUFFER_SIZE  49152
@@ -39,10 +47,13 @@ public:
 private:
 
     // Create a socket
-    int CreateListeningSocket();
+    SOCKET CreateListeningSocket();
 
     // Wait for a connection
-    int WaitForConnection(int listening);
+    SOCKET WaitForConnection(SOCKET listening);
+
+    // Console log information about a socket
+    void LogSocketInfo(const std::string& strSockName, SOCKET sockID, const sockaddr_in& sockInfo);
 
     // Address of the server
     std::string				m_strIPAddress;

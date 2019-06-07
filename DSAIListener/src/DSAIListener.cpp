@@ -1,12 +1,4 @@
 #include "DSAIListener.h"
-#include <iostream>
-#include <string.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-
 
 DSAIListener::DSAIListener( const std::string strIPAddress, int nPort, const RecivedMessageHandler& messageHandler)
     : m_strIPAddress(strIPAddress),
@@ -43,6 +35,7 @@ void DSAIListener::Run()
         SOCKET listeningSock = CreateListeningSocket();
         if (listeningSock == INVALID_SOCKET)
         {
+            std::cerr << "Invalid server socket created!\n";
             break;
         }
 
@@ -70,18 +63,32 @@ void DSAIListener::Run()
             close(clientSock);
             std::cout << "Client #" << clientSock << " Disconnected!\n";
         }
+        else
+        {
+            std::cerr << "Invalid client socket created!\n"
+                      << strerror(errno) << std::endl;
+            close(clientSock);
+        }
     }
 }
 
 void DSAIListener::Cleanup()
 {
-    std::cout << "Closing Down Server!";
+    std::cout << "Closing Down Server!\n";
 }
 
 // Create a socket
 SOCKET DSAIListener::CreateListeningSocket()
 {
-    SOCKET listeningSock = socket(AF_INET, SOCK_STREAM, 0);
+    SOCKET listeningSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+    // Fix Address Already in Use Bug
+    int enable = 1;
+    if (setsockopt(listeningSock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+    {
+        std::cerr << "setsockopt(SO_REUSEADDR) failed";
+    }
+
     if (listeningSock != INVALID_SOCKET)
     {
         sockaddr_in hint;
@@ -93,13 +100,19 @@ SOCKET DSAIListener::CreateListeningSocket()
         if (bindOk != SOCKET_ERROR)
         {
             int listenOk = listen(listeningSock, SOMAXCONN);
+            LogSocketInfo("Server", listeningSock, hint);
+
             if (listenOk == SOCKET_ERROR)
             {
+                std::cerr << "An error occured binding the socket!\n"
+                          << strerror(errno) << std::endl;
                 return -1;
             }
         }
         else
         {
+            std::cerr << "An error occured generating the listening socket!\n"
+                      << strerror(errno) << std::endl;
             return -1;
         }
     }
@@ -112,29 +125,32 @@ SOCKET DSAIListener::WaitForConnection(SOCKET listeningSock)
 {
     // Wait for a connection
     sockaddr_in clientInfo;
-    socklen_t clientSize = sizeof(clientInfo);
-
     SOCKET clientSock = accept(listeningSock, nullptr, nullptr);
+    LogSocketInfo("Client", clientSock, clientInfo);
 
-    // Output client info to console
+    return clientSock;
+}
+
+void DSAIListener::LogSocketInfo(const std::string& strSockName, SOCKET sockID, const sockaddr_in& sockInfo)
+{
+    // Output socket info to console
     char host[NI_MAXHOST];      // Client's remote name
     char service[NI_MAXSERV];   // Service (i.e. port) the client is connect on
+    size_t sockSize = sizeof(sockInfo);
 
     memset(host, 0, NI_MAXHOST);
     memset(service, 0, NI_MAXSERV);
 
-    if (getnameinfo((sockaddr*)&clientInfo, clientSize, host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
+    if (getnameinfo((sockaddr*)&sockInfo, sockSize, host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
     {
-        std::cout << "Client #" << clientSock << ": "
+        std::cout << strSockName << " #" << sockSize << ": "
                   << host << " connected on port " << service << std::endl;
     }
     else
     {
-        inet_ntop(AF_INET, &clientInfo.sin_addr, host, NI_MAXHOST);
-        std::cout << "Client #" << clientSock << ": " << host
-                  << " connected on port " << ntohs(clientInfo.sin_port)
+        inet_ntop(AF_INET, &sockInfo.sin_addr, host, NI_MAXHOST);
+        std::cout << strSockName << " #" << sockID << ": " << host
+                  << " connected on port " << ntohs(sockInfo.sin_port)
                   << std::endl;
     }
-
-    return clientSock;
 }
