@@ -1,13 +1,6 @@
 #include "DSAISerialListener.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <termios.h>
 
-DSAISerialListener::DSAISerialListener(const std::string ttyDevice, int serialSpeed)
+DSAISerialListener::DSAISerialListener(std::string ttyDevice, int serialSpeed)
 	: m_strTTYAddress(ttyDevice),
 	  m_serialSpeed(serialSpeed)
 {
@@ -106,7 +99,7 @@ void DSAISerialListener::ConfigureTTYDevice()
 	cfsetospeed (&tty, BAUDRATE);
 	cfsetispeed (&tty, BAUDRATE);
 	
-	if (tcsetattr(serial_port, TCSANOW, &tty) != 0) {
+	if (tcsetattr(m_ttyFileDescriptor, TCSANOW, &tty) != 0) {
 		printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
 	}
 	

@@ -1,5 +1,12 @@
 #ifndef DSAISERIALLISTENER_H
 #define DSAISERIALLISTENER_H
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <termios.h>
 #include <string>
 #include <functional>
 
@@ -36,7 +43,7 @@ class DSAISerialListener
 	void ConfigureTTYDevice();
 	
 	// TTY Device address
-	std:string m_strTTYAddress;
+	std::string m_strTTYAddress;
 	
 	// Serial speed
 	int m_serialSpeed;
