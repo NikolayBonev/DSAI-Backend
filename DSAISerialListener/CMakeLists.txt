@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(DSAIListener)
+project(DSAISerialListener)
 file(GLOB SOURCES
     src/*.h
     src/*.cpp
