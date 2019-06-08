@@ -37,7 +37,7 @@ void DSAISerialListener::Cleanup()
 
 void DSAISerialListener::CreateTTYDeviceFileDescriptor()
 {
-	m_ttyFileDescriptor = open( m_strTTYAddress, O_RDWR | O_NDELAY );
+	m_ttyFileDescriptor = open(m_strTTYAddress.c_str(), O_RDWR | O_NDELAY);
 	
 	if (m_ttyFileDescriptor < 0) {
 		printf("Error %i from open: %s\n", errno, strerror(errno));
