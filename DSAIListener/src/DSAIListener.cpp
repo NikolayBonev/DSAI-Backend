@@ -15,7 +15,7 @@ DSAIListener::~DSAIListener()
 // Send a message to the specified client
 void DSAIListener::Send(int nClientSocket, const std::string& strMsg)
 {
-    send(nClientSocket, strMsg.c_str(), strMsg.size() + 1, 0);
+    send(nClientSocket, strMsg.c_str(), strMsg.size(), 0);
 }
 
 // Initialize winsock

@@ -14,7 +14,7 @@ BasicJsonParser::BasicJsonParser():
         "\"gps_longitude\"",
         "\"air_temp\"",
         "\"air_humidity\"",
-        "\"handbrake",
+        "\"handbrake\"",
         "\"fuel\""
     };
 
@@ -33,6 +33,7 @@ BasicJsonParser::~BasicJsonParser()
 void BasicJsonParser::SetJsonPairs(const SDSAIData &sData)
 {
     SetValue<int>(eSpeed, sData.nSpeed);
+    SetValue<int>(eRPM, sData.nRPM);
     SetValue<float>(eEngineTemp, sData.fEngineTemp);
     SetValue(eEngineWarning, sData.strEngineWarning);
     SetValue<bool>(eFogLamp, sData.bFogLamp);
@@ -54,7 +55,7 @@ void BasicJsonParser::Stringify(const SDSAIData &sData)
     int nLastPair = m_mapJsonPairs.size() - 1;
     for(const auto& currJsonPair: m_mapJsonPairs)
     {
-        strStream << "" << currJsonPair.first << ":" << currJsonPair.second;
+        strStream << currJsonPair.first << ": " << currJsonPair.second;
         if(nCurrPair < nLastPair)
         {
             strStream << ",\n";
@@ -63,6 +64,7 @@ void BasicJsonParser::Stringify(const SDSAIData &sData)
     }
     strStream << "\n}";
     m_strJson = strStream.str();
+    std::cout << "Stringify->Result:\n" << m_strJson << std::endl;
 }
 
 const std::string &BasicJsonParser::GetJson() const
@@ -73,18 +75,15 @@ const std::string &BasicJsonParser::GetJson() const
 template<typename T>
 void BasicJsonParser::SetValue(EDataFieldIDs eID, const T &value)
 {
-    std::cout << "Setting value of type " << typeid(value).name() << std::endl;
+    std::cout << "Setting " << eID << " type ->" << typeid(value).name()
+              << "\tvalue -> " << value << std::endl;
 
     if(std::is_same<T,bool>::value)
     {
         std::string strValue = value? "true" : "false";
         m_mapJsonPairs[m_vecDataIDs.at(eID)] = strValue;
     }
-    else if(std::is_same<T,int>::value)
-    {
-        m_mapJsonPairs[m_vecDataIDs.at(eID)] = std::to_string(value);
-    }
-    else if(std::is_same<T,float>::value)
+    else if(std::is_same<T,int>::value || std::is_same<T,float>::value)
     {
         m_mapJsonPairs[m_vecDataIDs.at(eID)] = std::to_string(value);
     }

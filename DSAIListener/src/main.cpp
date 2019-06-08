@@ -16,10 +16,11 @@ int main()
     sData.fAirTemp = 41.02f;
     sData.bHandbrake = true;
     sData.nFuel = 1700;
+    sData.strEngineWarning = "warning:)";
     parser.Stringify(sData);
 
 
-    DSAIListener test("172.16.1.4", 54000, [&](DSAIListener* listener, int nSocketID, const std::string& strMsg)
+    DSAIListener test("192.168.1.6", 54000, [&](DSAIListener* listener, int nSocketID, const std::string& strMsg)
     {
         std::cout << "Echoing message " << parser.GetJson()
                   << " back to Client #" << nSocketID << "\n";
