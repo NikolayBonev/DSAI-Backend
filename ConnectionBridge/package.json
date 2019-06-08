@@ -1,0 +1,16 @@
+{
+  "name": "connection-bridge",
+  "version": "1.0.0",
+  "description": "Node application used as a connection bridge for converting TCP socket connection to Socket.IO connection",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "author": "Tsvetoslav Lazarov",
+  "license": "ISC",
+  "dependencies": {
+    "@types/socket.io": "^2.1.2",
+    "express": "^4.17.1",
+    "socket.io": "^2.2.0"
+  }
+}
