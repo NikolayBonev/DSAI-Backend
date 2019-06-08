@@ -15,7 +15,7 @@ class DSAISerialListener
 {
 	public:
 	// Constructor
-	DSAISerialListener(std:string ttyDevice, int serialSpeed);
+	DSAISerialListener(std::string ttyDevice, int serialSpeed);
 	
 	// Destructor
 	~DSAISerialListener();
@@ -24,7 +24,7 @@ class DSAISerialListener
 	bool Init();
 	
 	// Reads from tty device
-	std:string Read();
+	std::string Read();
 	
 	// Remove structures and buffers
 	void Cleanup();

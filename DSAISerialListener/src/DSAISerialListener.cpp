@@ -7,7 +7,7 @@
 #include <errno.h>
 #include <termios.h>
 
-DSAISerialListener::DSAISerialListener(const std:string ttyDevice, int serialSpeed)
+DSAISerialListener::DSAISerialListener(const std::string ttyDevice, int serialSpeed)
 	: m_strTTYAddress(ttyDevice),
 	  m_serialSpeed(serialSpeed)
 {
@@ -28,7 +28,7 @@ bool DSAISerialListener::Init()
 	return true;
 }
 
-std:string DSAISerialListener::Read()
+std::string DSAISerialListener::Read()
 {
 	char read_buf [TTY_READ_BUFFER];
 	memset(&read_buf, '\0', sizeof(read_buf));
