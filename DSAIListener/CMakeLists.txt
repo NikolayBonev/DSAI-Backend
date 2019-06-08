@@ -4,6 +4,8 @@ project(DSAIListener)
 file(GLOB SOURCES
     src/*.h
     src/*.cpp
+    src/utils/*.h
+    src/utils/*.cpp
 )
 set(
     CMAKE_RUNTIME_OUTPUT_DIRECTORY
