@@ -103,5 +103,5 @@ void DSAISerialListener::ConfigureTTYDevice()
 		printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
 	}
 	
-	tcflush( tty, TCIFLUSH );
+	tcflush(m_ttyFileDescriptor, TCIFLUSH);
 }
