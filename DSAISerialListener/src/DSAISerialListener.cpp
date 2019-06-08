@@ -1,6 +1,6 @@
 #include "DSAISerialListener.h"
 
-DSAISerialListener::DSAISerialListener(std::string ttyDevice, int serialSpeed)
+DSAISerialListener::DSAISerialListener(const std::string &ttyDevice, int serialSpeed)
 	: m_strTTYAddress(ttyDevice),
 	  m_serialSpeed(serialSpeed)
 {

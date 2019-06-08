@@ -22,7 +22,7 @@ class DSAISerialListener
 {
 	public:
 	// Constructor
-	DSAISerialListener(std::string ttyDevice, int serialSpeed);
+	DSAISerialListener(const std::string &ttyDevice, int serialSpeed);
 	
 	// Destructor
 	~DSAISerialListener();
