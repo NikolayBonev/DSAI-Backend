@@ -41,7 +41,7 @@ public:
     // Initialize winsock
     bool Init();
 
-    // The main processing loop
+    // The server processing logic
     void Run();
 
     // Clean up after using the service
@@ -67,9 +67,7 @@ private:
     // Handle already established client connections
     void HandleActiveConnections();
 
-    // Flag, indicating that the server is running
-    bool m_bRunning;
-
+    // Buffer for client messages
     char m_msgBuff[MAX_BUFFER_SIZE];
 
     // Keep track of the listening socket

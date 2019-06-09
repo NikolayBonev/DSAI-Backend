@@ -1,6 +1,5 @@
 #include <iostream>
-#include "DSAIListener.h"
-#include "utils/BasicJsonParser.h"
+#include "DSAIMgr.h"
 using namespace std;
 
 int main()
@@ -18,18 +17,11 @@ int main()
 //    sData.nFuel = 1700;
 //    sData.strEngineWarning = "warning:)";
 //    parser.Stringify(sData);
-
-
-    DSAIListener test("172.16.1.4", 54000, [&](DSAIListener* listener, int nSocketID, const std::string& strMsg)
+    DSAIMgr backEndApp;
+    if(backEndApp.Init())
     {
-        std::cout << "Echoing message " << strMsg
-                  << " back to Client #" << nSocketID << "\n";
-        listener->Send(nSocketID, strMsg);
-    });
-
-    if(test.Init())
-    {
-        test.Run();
+        backEndApp.Run();
     }
+    backEndApp.Cleanup();
     return 0;
 }

@@ -1,8 +1,7 @@
 #include "DSAIListener.h"
 
 DSAIListener::DSAIListener( const std::string strIPAddress, int nPort, const RecivedMessageHandler& messageHandler)
-    : m_bRunning(true),
-      m_msgBuff(),
+    : m_msgBuff(),
       m_listeningSock(0),
       m_arrClients(),
       m_sockMax(0),
@@ -55,12 +54,9 @@ bool DSAIListener::Init()
 // The main processing loop
 void DSAIListener::Run()
 {
-    while (m_bRunning)
-    {
-        PrepareFDMasterSet();
-        HandleNewConnection();
-        HandleActiveConnections();
-    }//end while loop
+    PrepareFDMasterSet();
+    HandleNewConnection();
+    HandleActiveConnections();
 }
 
 void DSAIListener::Cleanup()
