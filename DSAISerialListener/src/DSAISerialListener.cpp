@@ -76,6 +76,11 @@ void DSAISerialListener::ConfigureTTYDevice()
 	 */
 	tty.c_cflag |= CS7;
 	
+	/*	Enabling canonical mode. Input is processed when new line char is received.
+	 *	Use &= and tilde to disable.
+	 */
+	tty.c_lflag |= ICANON;
+	
 	if (tcsetattr(m_ttyFileDescriptor, TCSANOW, &tty) != 0) {
 		printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
 	}
