@@ -22,6 +22,13 @@ bool DSAIMgr::Init()
 {
     if(!m_server.Init())
     {
+        std::cerr << "DSAI Server failed to init" << std::endl;
+        return false;
+    }
+
+    if(!m_receiver.Init())
+    {
+        std::cerr << "DSAISerialListener failed to initialize" << std::endl;
         return false;
     }
 
@@ -33,7 +40,8 @@ void DSAIMgr::Run()
 {
     while (m_bRunning)
     {
-        const auto& data = m_dataProcessor.GetData("\"speed\":120;\"rpm\":6900;\"engine_temp\":92.6;\"gps_latitude\":120.3445;\"gps_longitude\":120.3445;\"air_temp\":30.5;\"air_humidity\":59;\"fuel\":67;");
+        std::string strAutoData = m_receiver.Read();
+        const auto& data = m_dataProcessor.GetData(strAutoData);
         m_jsonParser.Stringify(data);
         m_server.Run();
     }
@@ -41,5 +49,6 @@ void DSAIMgr::Run()
 
 void DSAIMgr::Cleanup()
 {
+    m_receiver.Cleanup();
     m_server.Cleanup();
 }
