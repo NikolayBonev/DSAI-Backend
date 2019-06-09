@@ -57,43 +57,10 @@ void DSAIListener::Run()
 {
     while (m_bRunning)
     {
-        //clear the socket set
-        FD_ZERO(&m_fdMasterSet);
-
-        //add master socket to set
-        FD_SET(m_listeningSock, &m_fdMasterSet);
-        m_sockMax = m_listeningSock;
-
-        //add client sockets to set
-        for (SOCKET& clientSock: m_arrClients)
-        {
-            //if valid socket descriptor then add to the master FD set
-            if(clientSock > 0)
-            {
-                FD_SET( clientSock , &m_fdMasterSet);
-            }
-
-            //highest socket number, need it for the select function
-            if(clientSock > m_sockMax)
-            {
-                m_sockMax = clientSock;
-            }
-        }
-
-
-        //wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
-        int nActivity = select( m_sockMax + 1 , &m_fdMasterSet , nullptr , nullptr , nullptr);
-
-        if ((nActivity < 0))
-        {
-            std::cerr << "Select error: " << strerror(errno) << std::endl;
-        }
-
+        PrepareFDMasterSet();
         HandleNewConnection();
         HandleActiveConnections();
     }//end while loop
-
-
 }
 
 void DSAIListener::Cleanup()
@@ -186,6 +153,41 @@ void DSAIListener::LogSocketInfo(const std::string& strSockName, SOCKET sockID, 
     }
 }
 
+void DSAIListener::PrepareFDMasterSet()
+{
+    //clear the socket set
+    FD_ZERO(&m_fdMasterSet);
+
+    //add master socket to set
+    FD_SET(m_listeningSock, &m_fdMasterSet);
+    m_sockMax = m_listeningSock;
+
+    //add client sockets to set
+    for (SOCKET& clientSock: m_arrClients)
+    {
+        //if valid socket descriptor then add to the master FD set
+        if(clientSock > 0)
+        {
+            FD_SET( clientSock , &m_fdMasterSet);
+        }
+
+        //highest socket number, need it for the select function
+        if(clientSock > m_sockMax)
+        {
+            m_sockMax = clientSock;
+        }
+    }
+
+
+    //wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
+    int nActivity = select( m_sockMax + 1 , &m_fdMasterSet , nullptr , nullptr , nullptr);
+
+    if (nActivity < 0)
+    {
+        std::cerr << "Select error: " << strerror(errno) << std::endl;
+    }
+}
+
 void DSAIListener::HandleNewConnection()
 {
     //If something happened on the master socket ,
@@ -198,7 +200,6 @@ void DSAIListener::HandleNewConnection()
         {
             memset(m_msgBuff, 0, MAX_BUFFER_SIZE);
             int bytesReceived = recv(clientSock, m_msgBuff, MAX_BUFFER_SIZE, 0);
-            std::cout << "New: bytesReceived -> " << bytesReceived;
             if (bytesReceived > 0 && m_messageHandler)
             {
                 m_messageHandler(this, clientSock, std::string(m_msgBuff, 0, bytesReceived));
@@ -242,7 +243,6 @@ void DSAIListener::HandleActiveConnections()
         {
             memset(m_msgBuff, 0, MAX_BUFFER_SIZE);
             int bytesReceived = recv(clientSock, m_msgBuff, MAX_BUFFER_SIZE, 0);
-            std::cout << "Active: bytesReceived -> " << bytesReceived;
             if (bytesReceived > 0 && m_messageHandler)
             {
                 m_messageHandler(this, clientSock, std::string(m_msgBuff, 0, bytesReceived));

@@ -58,6 +58,9 @@ private:
     // Console log information about a socket
     void LogSocketInfo(const std::string& strSockName, SOCKET sockID, const sockaddr_in& sockInfo);
 
+    //Prepare master fd set
+    void PrepareFDMasterSet();
+
     // Handle a new client connection
     void HandleNewConnection();
 
