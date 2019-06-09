@@ -9,10 +9,8 @@
 #include <termios.h>
 #include <string>
 #include <functional>
+#include <wiringSerial.h>
 
-#define MIN_INPUT_SIZE 138
-#define TIME_INTERVAL_TO_READ 5
-#define BAUDRATE B9600
 #define TTY_READ_BUFFER 512
 
 // Forward declaration of class
