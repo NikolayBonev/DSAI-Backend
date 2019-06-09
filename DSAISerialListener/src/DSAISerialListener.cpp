@@ -13,6 +13,8 @@ DSAISerialListener::~DSAISerialListener()
 
 bool DSAISerialListener::Init()
 {
+	CreateTTYDeviceFileDescriptor();
+	
 	if (m_ttyFileDescriptor < 0)
 	{
 		return false;
@@ -27,6 +29,11 @@ std::string DSAISerialListener::Read()
 	memset(&read_buf, '\0', sizeof(read_buf));
 	int n = read(m_ttyFileDescriptor, &read_buf, sizeof(read_buf));
 	
+	if(n < 0)
+	{
+		printf("Error %i from: %s\n", errno, strerror(errno));
+	}
+	
 	return read_buf;
 }
 
@@ -37,11 +44,13 @@ void DSAISerialListener::Cleanup()
 
 void DSAISerialListener::CreateTTYDeviceFileDescriptor()
 {
-	m_ttyFileDescriptor = open(m_strTTYAddress.c_str(), O_RDWR | O_NDELAY);
+	m_ttyFileDescriptor = serialOpen(m_strTTYAddress.c_str(), m_serialSpeed);
 	
 	if (m_ttyFileDescriptor < 0) {
 		printf("Error %i from open: %s\n", errno, strerror(errno));
 	}
+	
+	ConfigureTTYDevice();
 }
 
 void DSAISerialListener::ConfigureTTYDevice()
@@ -55,49 +64,17 @@ void DSAISerialListener::ConfigureTTYDevice()
 		printf("Error %i from tcgetattr: %s\n", errno, strerror(errno));
 	}
 	
-	/*  Disable parity bit.
-	 *	Use |= and remove tilde if using parity bit.
-	 */
-	tty.c_cflag &= ~PARENB;
+	tt.c_cflag &= ~CSIZE;
 	
-	/*	Use only one stop bit.
-	 *	Use |= and remove tilde if using two stop bits.
+	/*  Enable parity bit.
+	 *	Use &= and tilde if not using parity bit.
 	 */
-	tty.c_cflag &= ~CSTOPB;
+	tty.c_cflag |= PARENB;
 	
-	/*	Set number of bits fot byte to be 8 bits.
-	 *	Othes options: CS5, CS6, CS7.
+	/*	Set number of bits fot byte to be 7 bits.
+	 *	Othes options: CS5, CS6, CS8.
 	 */
-	tty.c_cflag |= CS8;
-	
-	/*	Disable RTS/CTS hardware flow controll
-	 *	Use |= and remove tilde to enable.
-	 */
-	tty.c_cflag &= ~CRTSCTS;
-
-	/* 
-	 *	Turn on READ & ignore ctrl lines (CLOCAL = 1)
-	 */
-	tty.c_cflag |= CREAD | CLOCAL;
-	
-	/*	Enabling canonical mode. Input is processed when new line char is received.
-	 *	Use &= and tilde to disable.
-	 */
-	tty.c_lflag = ICANON;
-	
-	tty.c_iflag = IGNPAR | ICRNL;
-	
-	tty.c_oflag = 0;	
-
-	/*	Start read when there are minimum 138 symbols
-	 *	or 5 decisecond passed.
-	 */
-	tty.c_cc[VMIN] = MIN_INPUT_SIZE;
-	tty.c_cc[VTIME] = TIME_INTERVAL_TO_READ;
-	
-	// Set Band Rate
-	cfsetospeed (&tty, BAUDRATE);
-	cfsetispeed (&tty, BAUDRATE);
+	tty.c_cflag |= CS7;
 	
 	if (tcsetattr(m_ttyFileDescriptor, TCSANOW, &tty) != 0) {
 		printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
