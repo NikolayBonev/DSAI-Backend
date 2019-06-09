@@ -30,23 +30,23 @@ BasicJsonParser::~BasicJsonParser()
     m_mapJsonPairs.erase(m_mapJsonPairs.begin(), m_mapJsonPairs.end());
 }
 
-void BasicJsonParser::SetJsonPairs(const SDSAIData &sData)
+void BasicJsonParser::SetJsonPairs(const VehicleInfo& sData)
 {
-    SetValue<int>(eSpeed, sData.nSpeed);
-    SetValue<int>(eRPM, sData.nRPM);
-    SetValue<float>(eEngineTemp, sData.fEngineTemp);
-    SetValue(eEngineWarning, sData.strEngineWarning);
-    SetValue<bool>(eFogLamp, sData.bFogLamp);
-    SetValue<bool>(eHazardLamp, sData.bHazardLamp);
-    SetValue<float>(eGPSLatitude, sData.fGPSLatitude);
-    SetValue<float>(eGPSLongitude, sData.fGPSLongitude);
-    SetValue<float>(eAirTemp, sData.fAirTemp);
-    SetValue<float>(eAirHumidity, sData.fAirHumidity);
-    SetValue<bool>(eHandbrake, sData.bHandbrake);
-    SetValue<int>(eFuel, sData.nFuel);
+    SetValue<int>(eSpeed, sData.speedometer);
+    SetValue<int>(eRPM, sData.rpm);
+    SetValue<float>(eEngineTemp, sData.engineTemperature);
+    SetValue(eEngineWarning, sData.DTC);
+    SetValue<bool>(eFogLamp, sData.fogLampIndicator);
+    SetValue<bool>(eHazardLamp, sData.hazardLights);
+    SetValue<float>(eGPSLatitude, sData.gpsLatitude);
+    SetValue<float>(eGPSLongitude, sData.gpsLongtitude);
+    SetValue<float>(eAirTemp, sData.airTemperature);
+    SetValue<float>(eAirHumidity, sData.airHumidity);
+    SetValue<bool>(eHandbrake, sData.handBrake);
+    SetValue<int>(eFuel, sData.fuelLevel);
 }
 
-void BasicJsonParser::Stringify(const SDSAIData &sData)
+void BasicJsonParser::Stringify(const VehicleInfo &sData)
 {
     SetJsonPairs(sData);
     std::stringstream strStream;

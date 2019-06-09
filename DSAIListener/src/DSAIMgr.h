@@ -20,6 +20,7 @@ private:
     //Used to keep track if the application is running
     bool m_bRunning;
     DSAIListener m_server;
+    InfoProcessing m_dataProcessor;
     BasicJsonParser m_jsonParser;
 
 };

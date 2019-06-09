@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "../InfoProcessing.hpp"
 
 enum EDataFieldIDs
 {
@@ -21,22 +22,6 @@ enum EDataFieldIDs
     eHandbrake,
     eFuel
 };
-//temp data structure
-struct SDSAIData
-{
-    int nSpeed = 0;
-    int nRPM = 0;
-    float fEngineTemp = 0.0f;
-    std::string strEngineWarning = "";
-    bool bFogLamp = false;
-    bool bHazardLamp = false;
-    float fGPSLatitude = 0.0f;
-    float fGPSLongitude = 0.0f;
-    float fAirTemp = 0.0f;
-    float fAirHumidity = 0.0f;
-    bool bHandbrake = false;
-    int nFuel = 0;
-};
 
 class BasicJsonParser
 {
@@ -44,7 +29,7 @@ public:
     BasicJsonParser();
     ~BasicJsonParser();
     // Transform Data structure into JSON string
-    void Stringify(const SDSAIData& sData);
+    void Stringify(const VehicleInfo& sData);
 
     const std::string& GetJson() const;
 private:
@@ -56,7 +41,7 @@ private:
     void SetValue(EDataFieldIDs eID, const std::string& value);
 
     //Set the json pairs from the data structure
-    void SetJsonPairs(const SDSAIData& sData);
+    void SetJsonPairs(const VehicleInfo& sData);
 };
 
 #endif
