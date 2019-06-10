@@ -2,14 +2,17 @@
 
 DSAIMgr::DSAIMgr():
     m_bRunning(false),
-    m_server("172.16.1.4", 54000, [this](DSAIListener* listener, int nSocketID, const std::string& strMsg)
+	m_receiver("/dev/ttyUSB0", 9600),
+	m_dataProcessor(),
+	m_jsonParser(),
+    m_server("192.168.0.110", 54000, [this](DSAIListener* listener, int nSocketID, const std::string& strMsg)
 {
     if(strMsg == "notification")
     {
         listener->Send(nSocketID, m_jsonParser.GetJson());
     }
-}),
-    m_jsonParser()
+})
+
 {
 
 }

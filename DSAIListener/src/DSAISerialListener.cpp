@@ -64,7 +64,7 @@ void DSAISerialListener::ConfigureTTYDevice()
 		printf("Error %i from tcgetattr: %s\n", errno, strerror(errno));
 	}
 	
-	tt.c_cflag &= ~CSIZE;
+	tty.c_cflag &= ~CSIZE;
 	
 	/*  Enable parity bit.
 	 *	Use &= and tilde if not using parity bit.
