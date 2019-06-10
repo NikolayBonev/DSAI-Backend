@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <typeinfo>
 #include "../InfoProcessing.hpp"
 
 enum EDataFieldIDs

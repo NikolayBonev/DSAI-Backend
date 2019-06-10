@@ -8,7 +8,10 @@ DSAIListener::DSAIListener( const std::string strIPAddress, int nPort, const Rec
       m_fdMasterSet(),
       m_strIPAddress(strIPAddress),
       m_nPort(nPort),
-      m_messageHandler(messageHandler)
+      m_messageHandler(messageHandler),
+      m_timerID(0),
+      m_nTimerPeriod(0),
+      m_timer()
 {
 }
 
@@ -29,7 +32,7 @@ bool DSAIListener::Init()
     //initialise all client_socket[] to 0 so not checked
     for (SOCKET& client: m_arrClients)
     {
-        client = 0;
+        client = INVALID_SOCKET;
     }
 
     // Create a listening socket
@@ -48,6 +51,16 @@ bool DSAIListener::Init()
     // connections
     FD_SET(m_listeningSock, &m_fdMasterSet);
 
+    //Initialize Timer
+    m_timerID = 7;
+    m_nTimerPeriod = 1000;
+    m_timer.StartTimer(m_timerID, m_nTimerPeriod, [this](TimerID timerID)
+    {
+        if(m_timerID == timerID)
+        {
+            NotifyClients();
+        }
+    });
     return true;
 }
 
@@ -55,7 +68,7 @@ bool DSAIListener::Init()
 void DSAIListener::Run()
 {
     PrepareFDMasterSet();
-    HandleNewConnection();
+    WaitForConnection();
     HandleActiveConnections();
 }
 
@@ -68,6 +81,8 @@ void DSAIListener::Cleanup()
     /* Remove the listening socket from the master file descriptor set and close it
     * to prevent anyone else trying to connect. */
     FD_CLR(m_listeningSock, &m_fdMasterSet);
+
+    m_timer.StopTimer(m_timerID);
 }
 
 // Create a socket
@@ -114,13 +129,30 @@ SOCKET DSAIListener::CreateListeningSocket()
 }
 
 // Wait for a connection
-SOCKET DSAIListener::WaitForConnection(SOCKET listeningSock)
+SOCKET DSAIListener::HandleNewConnection(SOCKET listeningSock)
 {
     // Wait for a connection
     sockaddr_in clientInfo;
     SOCKET clientSock = accept(listeningSock, nullptr, nullptr);
-    std::cout << "New client connected " << listeningSock << std::endl;
-    LogSocketInfo("Client", clientSock, clientInfo);
+    LogSocketInfo("New Client", clientSock, clientInfo);
+
+    if(clientSock != INVALID_SOCKET)
+    {
+        //add new socket to array of sockets
+        int nSockIndex = 0;
+        for (SOCKET& currSock: m_arrClients)
+        {
+            //if position is empty
+            if( currSock == INVALID_SOCKET )
+            {
+                currSock = clientSock;
+                std::cout << "Adding to list of sockets at index "
+                          << nSockIndex << std::endl;
+                break;
+            }
+            nSockIndex++;
+        }
+    }
 
     return clientSock;
 }
@@ -162,7 +194,7 @@ void DSAIListener::PrepareFDMasterSet()
     for (SOCKET& clientSock: m_arrClients)
     {
         //if valid socket descriptor then add to the master FD set
-        if(clientSock > 0)
+        if(clientSock != INVALID_SOCKET)
         {
             FD_SET( clientSock , &m_fdMasterSet);
         }
@@ -184,49 +216,18 @@ void DSAIListener::PrepareFDMasterSet()
     }
 }
 
-void DSAIListener::HandleNewConnection()
+void DSAIListener::WaitForConnection()
 {
     //If something happened on the master socket ,
-    // then its an incoming connection
+    // then it's an incoming connection
     if (FD_ISSET(m_listeningSock, &m_fdMasterSet))
     {
-
-        SOCKET clientSock = WaitForConnection(m_listeningSock);
-        if (clientSock != INVALID_SOCKET)
+        SOCKET clientSock = HandleNewConnection(m_listeningSock);
+        if(clientSock == INVALID_SOCKET)
         {
-            memset(m_msgBuff, 0, MAX_BUFFER_SIZE);
-            int bytesReceived = recv(clientSock, m_msgBuff, MAX_BUFFER_SIZE, 0);
-            if (bytesReceived > 0 && m_messageHandler)
-            {
-                m_messageHandler(this, clientSock, std::string(m_msgBuff, 0, bytesReceived));
-            }
-            else
-            {
-                close(clientSock);
-                std::cout << "Client #" << clientSock << " Disconnected!\n";
-            }
-        }
-        else
-        {
-            std::cerr << "Invalid client socket created!\n"
-                      << strerror(errno) << std::endl;
-            close(clientSock);
+            std::cerr << "Failed client connection!!\n";
         }
 
-        //add new socket to array of sockets
-        int nSockIndex = 0;
-        for (SOCKET& currSock: m_arrClients)
-        {
-            //if position is empty
-            if( currSock == 0 )
-            {
-                currSock = clientSock;
-                std::cout << "Adding to list of sockets as "
-                          <<  nSockIndex << std::endl;
-                break;
-            }
-            nSockIndex++;
-        }
     }
 }
 
@@ -247,9 +248,22 @@ void DSAIListener::HandleActiveConnections()
             {
                 // Close the socket and mark as 0 in list for reuse
                 close(clientSock);
-                clientSock = -1;
                 std::cout << "Client #" << clientSock << " Disconnected!\n";
+                clientSock = INVALID_SOCKET;
             }
         }
+    }
+}
+
+void DSAIListener::NotifyClients()
+{
+    int curr = 0;
+    for (SOCKET& clientSock: m_arrClients)
+    {
+        if (clientSock != INVALID_SOCKET)
+        {
+            m_messageHandler(this, clientSock, "notification");
+        }
+        curr++;
     }
 }

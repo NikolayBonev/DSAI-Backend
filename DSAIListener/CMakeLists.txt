@@ -12,6 +12,10 @@ set(
     ${PROJECT_SOURCE_DIR}/build
     )
 add_executable(${PROJECT_NAME} ${SOURCES})
+
 find_library(wiringPi_LTB wiringPi)
 target_link_libraries(${PROJECT_NAME} ${wiringPi_LTB})
+
+find_package (Threads)
+target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
 

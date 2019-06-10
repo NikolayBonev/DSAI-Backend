@@ -64,7 +64,7 @@ void BasicJsonParser::Stringify(const VehicleInfo &sData)
     }
     strStream << "\n}";
     m_strJson = strStream.str();
-    std::cout << "Stringify->Result:\n" << m_strJson << std::endl;
+//    std::cout << "Stringify->Result:\n" << m_strJson << std::endl;
 }
 
 const std::string &BasicJsonParser::GetJson() const
@@ -75,9 +75,6 @@ const std::string &BasicJsonParser::GetJson() const
 template<typename T>
 void BasicJsonParser::SetValue(EDataFieldIDs eID, const T &value)
 {
-    std::cout << "Setting " << eID << " type ->" << typeid(value).name()
-              << "\tvalue -> " << value << std::endl;
-
     if(std::is_same<T,bool>::value)
     {
         std::string strValue = value? "true" : "false";

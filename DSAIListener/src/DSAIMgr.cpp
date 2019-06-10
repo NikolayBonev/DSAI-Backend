@@ -4,9 +4,10 @@ DSAIMgr::DSAIMgr():
     m_bRunning(false),
     m_server("172.16.1.4", 54000, [this](DSAIListener* listener, int nSocketID, const std::string& strMsg)
 {
-    std::cout << "Echoing message " << m_jsonParser.GetJson()
-              << " back to Client #" << nSocketID << "\n";
-    listener->Send(nSocketID, m_jsonParser.GetJson());
+    if(strMsg == "notification")
+    {
+        listener->Send(nSocketID, m_jsonParser.GetJson());
+    }
 }),
     m_jsonParser()
 {

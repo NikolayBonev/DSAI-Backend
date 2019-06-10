@@ -11,6 +11,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <array>
+#include "utils/BasicTimer.h"
 
 
 using SOCKET = int;
@@ -52,8 +53,8 @@ private:
     // Create a socket
     SOCKET CreateListeningSocket();
 
-    // Wait for a connection
-    SOCKET WaitForConnection(SOCKET listening);
+    // Handle new client connection
+    SOCKET HandleNewConnection(SOCKET listening);
 
     // Console log information about a socket
     void LogSocketInfo(const std::string& strSockName, SOCKET sockID, const sockaddr_in& sockInfo);
@@ -61,11 +62,14 @@ private:
     //Prepare master fd set
     void PrepareFDMasterSet();
 
-    // Handle a new client connection
-    void HandleNewConnection();
+    // Wait for new client connections
+    void WaitForConnection();
 
     // Handle already established client connections
     void HandleActiveConnections();
+
+    // Notify all connected clients periodically
+    void NotifyClients();
 
     // Buffer for client messages
     char m_msgBuff[MAX_BUFFER_SIZE];
@@ -90,6 +94,11 @@ private:
 
     // Message received event handler
     RecivedMessageHandler	m_messageHandler;
+
+    //Timer fields
+    TimerID m_timerID;
+    int m_nTimerPeriod;
+    BasicTimer m_timer;
 };
 
 #endif // DSAILISTENER_H
