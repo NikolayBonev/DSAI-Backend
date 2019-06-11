@@ -12,8 +12,7 @@ BasicTimer::BasicTimer():
 
 BasicTimer::~BasicTimer()
 {
-    std::cout << "Timer::Destroying Timer " << m_nID << " thread " << m_thread.get_id() << std::endl;
-    m_thread.join();
+    Cleanup();
 }
 
 void BasicTimer::StartTimer(TimerID nTimerID, int nPeriod, TimerCallback timerCallback)
@@ -68,3 +67,10 @@ bool BasicTimer::IsRunning() const
 {
     return m_bRunning;
 }
+
+void BasicTimer::Cleanup()
+{
+    std::cout << "Timer::Destroying Timer " << m_nID << " thread " << m_thread.get_id() << std::endl;
+    m_thread.join(); 
+}
+

@@ -33,6 +33,8 @@ public:
     void StopTimer(TimerID nTimerID);
 
     bool IsRunning() const;
+    
+    void Cleanup();
 };
 
 #endif // TIMER_H

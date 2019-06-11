@@ -82,7 +82,23 @@ void DSAIListener::Cleanup()
     * to prevent anyone else trying to connect. */
     FD_CLR(m_listeningSock, &m_fdMasterSet);
 
+    int nCurrSock = 0;
+    for(SOCKET& clientSock: m_arrClients)
+    {
+        if(clientSock != INVALID_SOCKET)
+        {
+            std::cout << "Closing Client[" << nCurrSock++ << "] id -> "
+            << clientSock << std::endl;
+            close(clientSock);
+            clientSock = INVALID_SOCKET;
+        }
+    }
+    
+    // Set all connections to zero
+    FD_ZERO(&m_fdMasterSet);
+    
     m_timer.StopTimer(m_timerID);
+    m_timer.Cleanup();
 }
 
 // Create a socket
