@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <thread>
+#include <atomic>
 
 typedef int TimerID;
 
@@ -18,7 +19,7 @@ private:
     int m_nPeriod;
 
     // If the timer is active
-    bool m_bRunning;
+    std::atomic_bool m_bRunning;
 
     // Main Timer Thread, responsible for executing TimerCallback
     std::thread m_thread;
@@ -32,9 +33,7 @@ public:
 
     void StopTimer(TimerID nTimerID);
 
-    bool IsRunning() const;
-    
-    void Cleanup();
+    const std::atomic_bool& IsRunning() const;
 };
 
 #endif // TIMER_H

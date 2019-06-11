@@ -17,7 +17,6 @@ DSAIListener::DSAIListener( const std::string strIPAddress, int nPort, const Rec
 
 DSAIListener::~DSAIListener()
 {
-    Cleanup();
 }
 
 // Send a message to the specified client
@@ -29,7 +28,7 @@ void DSAIListener::Send(int nClientSocket, const std::string& strMsg)
 // Initialize DSAI Listener
 bool DSAIListener::Init()
 {
-    //initialise all client_socket[] to 0 so not checked
+    //initialise all client_socket[] to INVALID_SOCKET, so not checked
     for (SOCKET& client: m_arrClients)
     {
         client = INVALID_SOCKET;
@@ -98,7 +97,6 @@ void DSAIListener::Cleanup()
     FD_ZERO(&m_fdMasterSet);
     
     m_timer.StopTimer(m_timerID);
-    m_timer.Cleanup();
 }
 
 // Create a socket
@@ -273,13 +271,11 @@ void DSAIListener::HandleActiveConnections()
 
 void DSAIListener::NotifyClients()
 {
-    int curr = 0;
     for (SOCKET& clientSock: m_arrClients)
     {
         if (clientSock != INVALID_SOCKET)
         {
             m_messageHandler(this, clientSock, "notification");
         }
-        curr++;
     }
 }

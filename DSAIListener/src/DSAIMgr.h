@@ -7,7 +7,6 @@
 class DSAIMgr
 {
 public:
-    DSAIMgr();
     ~DSAIMgr();
 
     //Initialize application
@@ -18,6 +17,15 @@ public:
 
     //Free Resources
     void Cleanup();
+    
+    //Handle linux kernel signals and terminate program
+    static void SignalHandler(int nSignal);
+    
+    //Get a single instance of this class
+    static DSAIMgr* GetInstance();
+    
+    //Destroy the instance
+    static void DestroyInstance();
 
 private:
 
@@ -35,6 +43,12 @@ private:
 
     //Send Json to clients
     DSAIListener m_server;
+    
+    //Private constructor for Singleton
+    DSAIMgr();
+    
+    //Singleton Instance
+    static DSAIMgr* m_staticInstance;
 
 };
 

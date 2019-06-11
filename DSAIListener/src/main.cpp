@@ -1,27 +1,16 @@
 #include <iostream>
 #include "DSAIMgr.h"
-using namespace std;
 
 int main()
 {
-    cout << "Hello World!" << endl;
-//    BasicJsonParser parser;
-//    SDSAIData sData;
-//    sData.nSpeed = 1200;
-//    sData.nRPM = 2333;
-//    sData.fEngineTemp = 13.6f;
-//    sData.bFogLamp = true;
-//    sData.fGPSLatitude = 75.1244f;
-//    sData.fAirTemp = 41.02f;
-//    sData.bHandbrake = true;
-//    sData.nFuel = 1700;
-//    sData.strEngineWarning = "warning:)";
-//    parser.Stringify(sData);
-    DSAIMgr backEndApp;
-    if(backEndApp.Init())
+    DSAIMgr* ptrDSAIMgr = DSAIMgr::GetInstance();
+    if(ptrDSAIMgr->Init())
     {
-        backEndApp.Run();
+        ptrDSAIMgr->Run();
     }
-    backEndApp.Cleanup();
+    
+    DSAIMgr::DestroyInstance();
+    ptrDSAIMgr = nullptr;
+    
     return 0;
 }

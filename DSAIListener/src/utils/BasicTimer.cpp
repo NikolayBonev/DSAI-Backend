@@ -12,7 +12,10 @@ BasicTimer::BasicTimer():
 
 BasicTimer::~BasicTimer()
 {
-    Cleanup();
+    if(IsRunning())
+    {
+        StopTimer(m_nID);
+    }
 }
 
 void BasicTimer::StartTimer(TimerID nTimerID, int nPeriod, TimerCallback timerCallback)
@@ -39,11 +42,17 @@ void BasicTimer::StartTimer(TimerID nTimerID, int nPeriod, TimerCallback timerCa
 
 void BasicTimer::StopTimer(TimerID nTimerID)
 {
+    if(!IsRunning())
+    {
+        std::cout << "Timer #" << m_nID << " is not active for it to be stopped!\n";
+        return;
+    }
     if(m_nID == nTimerID)
     {
         if(std::this_thread::get_id() == m_thread.get_id())
         {
-            std::cout << "\t\t\tTHIS IS THE SAME THREAD :O\n\n\n\n";
+            std::cout << "StopTimer #" << m_nID <<  " on thread "
+            << std::this_thread::get_id() << " THIS IS THE SAME THREAD :O\n";
         }
         try
         {
@@ -51,26 +60,16 @@ void BasicTimer::StopTimer(TimerID nTimerID)
             m_bRunning = false;
             std::cout << "Joining Timer " << m_nID << " thread " << m_thread.get_id() << std::endl;
 
-            //m_thread.join();
-            m_thread.detach();
+            m_thread.join();
         } catch(std::exception& e)
         {
-            std::cout << "Oppls..\n\n\n";
+            std::cout << "Exception trying to join timer #" << m_nID << " on thread " << m_thread.get_id() << ":\n";
             std::cout << e.what() << std::endl;
         }
-
-        std::cout << "Exiting Timer::StopTimer( " << nTimerID << ")\n\n\n\n";
     }
 }
 
-bool BasicTimer::IsRunning() const
+const std::atomic_bool& BasicTimer::IsRunning() const
 {
     return m_bRunning;
 }
-
-void BasicTimer::Cleanup()
-{
-    std::cout << "Timer::Destroying Timer " << m_nID << " thread " << m_thread.get_id() << std::endl;
-    m_thread.join(); 
-}
-
