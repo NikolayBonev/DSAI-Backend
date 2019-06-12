@@ -19,3 +19,4 @@ target_link_libraries(${PROJECT_NAME} ${wiringPi_LTB})
 find_package (Threads)
 target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
 
+FILE(COPY config.csv DESTINATION "${CMAKE_BINARY_DIR}")

@@ -31,7 +31,7 @@ class DSAIListener
 {
 public:
     // Constructor
-    DSAIListener(std::string strIPAddress, int m_nPort, const RecivedMessageHandler& handler);
+    DSAIListener(const RecivedMessageHandler& handler);
 
     // Destructor
     ~DSAIListener();
@@ -40,7 +40,7 @@ public:
     void Send(int nClientSocket, const std::string& strMsg);
 
     // Initialize winsock
-    bool Init();
+    bool Init(const std::string& strIPAddress, int m_nPort, int nTimerPeriod);
 
     // The server processing logic
     void Run();
@@ -78,7 +78,7 @@ private:
     SOCKET m_listeningSock;
 
     // Keep track of the clients
-    std::array<int, MAX_CLIENTS> m_arrClients;
+    std::array<SOCKET, MAX_CLIENTS> m_arrClients = { INVALID_SOCKET };
 
     // current highest socket
     SOCKET m_sockMax;

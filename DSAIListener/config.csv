@@ -1,0 +1,6 @@
+TTYDevice,/dev/ttyUSB0,
+SerialSpeed,9600
+SavePath,save.txt,
+ServerIP,localhost,
+ServerPort,54000,
+TimerPeriod,1000,

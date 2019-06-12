@@ -3,7 +3,10 @@
 
 //Singleton Instance
 DSAIMgr* DSAIMgr::m_staticInstance = nullptr;
+bool DSAIMgr::m_bRunning = false;
 
+//path to configuration
+#define CONFIG_PATH "config.csv"
 
 DSAIMgr* DSAIMgr::GetInstance()
 {
@@ -26,18 +29,21 @@ void DSAIMgr::DestroyInstance()
 }
 
 DSAIMgr::DSAIMgr():
-    m_bRunning(false),
-	m_receiver("/dev/ttyUSB0", 9600),
+    m_basicConfig(),
+	m_receiver(),
 	m_dataProcessor(),
 	m_jsonParser(),
-    m_server("127.0.0.1", 54000, [this](DSAIListener* listener, int nSocketID, const std::string& strMsg)
-{
-    if(strMsg == "notification")
+    m_server([this](DSAIListener* listener, int nSocketID, const std::string& strMsg)
     {
-        listener->Send(nSocketID, m_jsonParser.GetJson());
-    }
-})
-
+        if(strMsg == "notification")
+        {
+            listener->Send(nSocketID, m_jsonParser.GetJson());
+        }
+        else
+        {
+            listener->Send(nSocketID, strMsg);
+        }
+    })
 {
 
 }
@@ -57,16 +63,23 @@ bool DSAIMgr::Init()
     signal(SIGABRT, SignalHandler);	//abnormal termination condition, as is e.g. initiated by std::abort()
     signal(SIGFPE, SignalHandler);	//erroneous arithmetic operation such as divide by zero
 
-    
-    if(!m_server.Init())
+    if(!m_basicConfig.Init(CONFIG_PATH))
     {
-        std::cerr << "DSAI Server failed to init" << std::endl;
+        std::cerr << "DSAI Configuration failed to init!" << std::endl;
         return false;
     }
 
-    if(!m_receiver.Init())
+    const SConfig& config = m_basicConfig.GetConfig();
+
+    if(!m_receiver.Init(config.strTTYDevice, config.nSerialSpeed))
     {
         std::cerr << "DSAISerialListener failed to initialize" << std::endl;
+        return false;
+    }
+
+    if(!m_server.Init(config.strServerIP, config.nServerPort, config.nTimerPeriod))
+    {
+        std::cerr << "DSAI Server failed to init!" << std::endl;
         return false;
     }
 
@@ -94,6 +107,12 @@ void DSAIMgr::Cleanup()
 
 void DSAIMgr::SignalHandler(int nSignal)
 {
+    /* Only handle one signal before terminating */
+    if(!m_bRunning)
+    {
+        return;
+    }
+
     std::string strSignal = "";
     switch(nSignal)
     {

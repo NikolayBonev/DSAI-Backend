@@ -1,5 +1,6 @@
 #ifndef DSAIMGR_H_
 #define DSAIMGR_H_
+#include "utils/BasicConfig.h"
 #include "utils/BasicJsonParser.h"
 #include "DSAISerialListener.h"
 #include "DSAIListener.h"
@@ -30,7 +31,10 @@ public:
 private:
 
     //Used to keep track if the application is running
-    bool m_bRunning;
+    static bool m_bRunning;
+
+    // Configure application
+    BasicConfig m_basicConfig;
 
     // Receive automobile data
     DSAISerialListener m_receiver;

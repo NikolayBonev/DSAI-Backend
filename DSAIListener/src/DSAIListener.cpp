@@ -1,13 +1,12 @@
 #include "DSAIListener.h"
 
-DSAIListener::DSAIListener( const std::string strIPAddress, int nPort, const RecivedMessageHandler& messageHandler)
+DSAIListener::DSAIListener(const RecivedMessageHandler& messageHandler)
     : m_msgBuff(),
       m_listeningSock(0),
-      m_arrClients(),
       m_sockMax(0),
       m_fdMasterSet(),
-      m_strIPAddress(strIPAddress),
-      m_nPort(nPort),
+      m_strIPAddress(),
+      m_nPort(),
       m_messageHandler(messageHandler),
       m_timerID(0),
       m_nTimerPeriod(0),
@@ -26,8 +25,11 @@ void DSAIListener::Send(int nClientSocket, const std::string& strMsg)
 }
 
 // Initialize DSAI Listener
-bool DSAIListener::Init()
+bool DSAIListener::Init(const std::string& strIPAddress, int nPort, int nTimerPeriod)
 {
+    m_strIPAddress = strIPAddress;
+    m_nPort = nPort;
+
     //initialise all client_socket[] to INVALID_SOCKET, so not checked
     for (SOCKET& client: m_arrClients)
     {
@@ -52,7 +54,7 @@ bool DSAIListener::Init()
 
     //Initialize Timer
     m_timerID = 7;
-    m_nTimerPeriod = 1000;
+    m_nTimerPeriod = nTimerPeriod;
     m_timer.StartTimer(m_timerID, m_nTimerPeriod, [this](TimerID timerID)
     {
         if(m_timerID == timerID)
@@ -162,6 +164,15 @@ SOCKET DSAIListener::HandleNewConnection(SOCKET listeningSock)
                 currSock = clientSock;
                 std::cout << "Adding to list of sockets at index "
                           << nSockIndex << std::endl;
+                break;
+            }
+            else if( nSockIndex == m_arrClients.size() - 1)
+            {
+                std::string strErrMsg = "Server Error - no free slots to connect you!\n";
+                m_messageHandler(this, clientSock, strErrMsg);
+                close(clientSock);
+                clientSock = INVALID_SOCKET;
+                std::cerr << strErrMsg << std::endl;
                 break;
             }
             nSockIndex++;

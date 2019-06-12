@@ -20,13 +20,13 @@ class DSAISerialListener
 {
 	public:
 	// Constructor
-	DSAISerialListener(const std::string &ttyDevice, int serialSpeed);
+	DSAISerialListener();
 	
 	// Destructor
 	~DSAISerialListener();
 
 	// Init file descriptor
-	bool Init();
+	bool Init(const std::string& ttyDevice, int serialSpeed);
 	
 	// Reads from tty device
 	std::string Read();
