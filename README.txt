@@ -17,3 +17,6 @@ TTYDevice, SerialSpeed, SavePath, ServerIP, ServerPort and TimerPeriod
 Note: SavePath will create a file in  ~/DSAI-Backend/DSAIListener/build directory.
 Note: TimerPeriod is in milliseconds and must be positive. It's used to notify server clients.
 
+Warning: After changing config.csv, cmake .. must be run in the build directory, otherwise the changes won't be applied. 
+Another way is to modify the config.csv file in the build directory itself.
+
