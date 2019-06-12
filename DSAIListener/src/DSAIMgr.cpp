@@ -79,10 +79,11 @@ bool DSAIMgr::Init()
         return false;
     }
 	
-	if (!m_operator.Init(config.strSavePath))
-	{
-		std::cerr << "DSAIFileOperator failed to initialize" << std::endl;
-	}
+    if (!m_operator.Init(config.strSavePath))
+    {
+            std::cerr << "DSAIFileOperator failed to initialize" << std::endl;
+            return false;
+    }
 
     if(!m_server.Init(config.strServerIP, config.nServerPort, config.nTimerPeriod))
     {
