@@ -5,6 +5,7 @@ const io = require('socket.io')(http);
 
 const DATA_SERVER_URL = "localhost";
 const DATA_SERVER_PORT = 54000;
+const QUOTES_REPLACING_REGULAR = /([^:]")"+/g;
 
 io.on("connection", socket => {
     var client = new net.Socket();
@@ -16,7 +17,9 @@ io.on("connection", socket => {
 
     client.on('data', function(data) {
         console.log('Passing data: ' + data);
-        socket.emit('data', data.toString());
+        
+        let parsedData = data.toString().replace(QUOTES_REPLACING_REGULAR, '$1');
+        socket.emit('data', parsedData);
     });
     
     client.on('close', function() {
@@ -27,7 +30,7 @@ io.on("connection", socket => {
     
     client.on('error', function(error) {
         console.log('Error: ' + error);
-        socket.emit('receivederror', error);
+        socket.emit('receivedError', error);
     })
 });
 
