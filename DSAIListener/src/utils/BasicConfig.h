@@ -18,7 +18,7 @@ struct SConfig
                             (strSavePath != "") &&
                             (strServerIP != "") &&
                             (nServerPort != -1) &&
-                            (nTimerPeriod != -1);
+                            (nTimerPeriod > 0);
         return bConfigured;
     }
 };
