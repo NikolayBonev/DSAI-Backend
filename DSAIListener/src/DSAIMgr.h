@@ -4,6 +4,7 @@
 #include "utils/BasicJsonParser.h"
 #include "DSAISerialListener.h"
 #include "DSAIListener.h"
+#include "DSAIFileOperator.h"
 
 class DSAIMgr
 {
@@ -28,6 +29,12 @@ public:
     //Destroy the instance
     static void DestroyInstance();
 
+	// Keeps current read data.
+	std::string recoveryData;
+	
+	// Flag is the process started after fail.
+	bool isFailed;
+	
 private:
 
     //Used to keep track if the application is running
@@ -47,6 +54,9 @@ private:
 
     //Send Json to clients
     DSAIListener m_server;
+	
+	// Backup of the last read data.
+	DSAIFileOperator m_operator;
     
     //Private constructor for Singleton
     DSAIMgr();

@@ -22,6 +22,7 @@ void DSAIMgr::DestroyInstance()
 {
     if(m_staticInstance)
     {
+		m_staticInstance->m_operator.writeDataToFile("");
         delete(m_staticInstance);
         m_staticInstance = nullptr;
         std::cout << "Destroying DSAIMgr" << std::endl;
@@ -32,6 +33,7 @@ DSAIMgr::DSAIMgr():
     m_basicConfig(),
 	m_receiver(),
 	m_dataProcessor(),
+	m_operator(),
 	m_jsonParser(),
     m_server([this](DSAIListener* listener, int nSocketID, const std::string& strMsg)
     {
@@ -76,12 +78,28 @@ bool DSAIMgr::Init()
         std::cerr << "DSAISerialListener failed to initialize" << std::endl;
         return false;
     }
+	
+	if (!m_operator.Init(config.strSavePath))
+	{
+		std::cerr << "DSAIFileOperator failed to initialize" << std::endl;
+	}
 
     if(!m_server.Init(config.strServerIP, config.nServerPort, config.nTimerPeriod))
     {
         std::cerr << "DSAI Server failed to init!" << std::endl;
         return false;
     }
+	
+	recoveryData = m_operator.readDataFromFile();
+
+	if (recoveryData.empty())
+	{
+		isFailed = false;
+	}
+	else
+	{
+        isFailed = true;
+	}
 
     m_bRunning = true;
     return true;
@@ -91,8 +109,13 @@ void DSAIMgr::Run()
 {
     while (m_bRunning)
     {
-        std::string strAutoData = m_receiver.Read();
-        const auto& data = m_dataProcessor.GetData(strAutoData);
+		if (recoveryData.empty() || (!recoveryData.empty() && !isFailed))
+        {
+                recoveryData = m_receiver.Read();
+                m_operator.writeDataToFile(recoveryData);
+        }
+		
+        const auto& data = m_dataProcessor.GetData(recoveryData);
         m_jsonParser.Stringify(data);
         m_server.Run();
     }
