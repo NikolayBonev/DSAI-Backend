@@ -32,11 +32,15 @@ void BasicTimer::StartTimer(TimerID nTimerID, int nPeriod, TimerCallback timerCa
     m_bRunning = true;
     m_thread = std::thread([this, nTimerID, nPeriod, timerCallback]()
     {
+        std::cout << "Entering Timer#" << nTimerID << " on thread #"
+                  << m_thread.get_id() << std::endl;
         while (IsRunning())
         {
             timerCallback(nTimerID);
             std::this_thread::sleep_for( std::chrono::milliseconds( nPeriod ) );
         }
+        std::cout << "Exiting Timer#" << nTimerID << " on thread #"
+                  << m_thread.get_id() << std::endl;
     });
 }
 
@@ -56,14 +60,13 @@ void BasicTimer::StopTimer(TimerID nTimerID)
         }
         try
         {
-            std::cout << "Timer::StoppingTimer " << nTimerID << std::endl;
             m_bRunning = false;
-            std::cout << "Joining Timer " << m_nID << " thread " << m_thread.get_id() << std::endl;
+            std::cout << "BasicTimer::Stopping Timer #" << nTimerID << " and detaching thread " << m_thread.get_id() << std::endl;
 
-            m_thread.join();
+            m_thread.detach();
         } catch(std::exception& e)
         {
-            std::cout << "Exception trying to join timer #" << m_nID << " on thread " << m_thread.get_id() << ":\n";
+            std::cout << "Exception trying to detach timer #" << m_nID << " on thread " << m_thread.get_id() << ":\n";
             std::cout << e.what() << std::endl;
         }
     }

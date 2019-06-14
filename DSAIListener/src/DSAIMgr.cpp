@@ -102,6 +102,14 @@ bool DSAIMgr::Init()
         isFailed = true;
 	}
 
+    m_basicTimer.StartTimer(m_timerID, m_nPeriod, [this](TimerID id)
+    {
+        if(id == m_timerID)
+        {
+            this->m_server.Run();
+        }
+    });
+
     m_bRunning = true;
     return true;
 }
@@ -115,16 +123,16 @@ void DSAIMgr::Run()
                 recoveryData = m_receiver.Read();
                 m_operator.writeDataToFile(recoveryData);
         }
-		
+
         const auto& data = m_dataProcessor.GetData(recoveryData);
         m_jsonParser.Stringify(data);
-        m_server.Run();
     }
 }
 
 void DSAIMgr::Cleanup()
 {
     m_bRunning = false;
+    m_basicTimer.StopTimer(m_timerID);
     m_receiver.Cleanup();
     m_server.Cleanup();
 }

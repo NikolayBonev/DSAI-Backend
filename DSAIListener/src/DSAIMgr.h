@@ -64,6 +64,10 @@ private:
     //Singleton Instance
     static DSAIMgr* m_staticInstance;
 
+    TimerID m_timerID = 1;
+    int m_nPeriod = 0;
+    BasicTimer m_basicTimer;
+
 };
 
 #endif
